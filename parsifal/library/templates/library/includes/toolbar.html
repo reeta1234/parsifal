@@ -1,0 +1,147 @@
+<div class="btn-toolbar" id="library-toolbar" role="toolbar" aria-label="Library Toolbar">
+  <div class="btn-group">
+    <button type="button" class="btn btn-default btn-sm js-toggle-select-documents">
+      <span class="glyphicon glyphicon-unchecked"></span>
+    </button>
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="javascript:void(0);" class="js-select-all-documents-in-page">All</a></li>
+      <li><a href="javascript:void(0);" class="js-clear-selection">None</a></li>
+    </ul>
+  </div>
+
+  <div class="btn-group not-allowed">
+    <div class="btn-group">
+      <button type="button" class="btn btn-default btn-sm dropdown-toggle js-selection-action" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled="disabled">
+        <span class="glyphicon glyphicon glyphicon-trash"></span>
+        <span class="hidden-xs hidden-sm hidden-md">Delete</span>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {% if active_folder %}
+          <li><a href="javascript:void(0);" class="js-remove-from-folder" data-remote="{% url 'library:remove_from_folder' %}" data-folder-id="{{ active_folder.pk }}">Remove from folder</a></li>
+        {% endif %}
+        <li><a href="javascript:void(0);" class="js-delete-completely" data-remote="{% url 'library:delete_documents' %}">Delete completely</a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <button type="button" class="btn btn-default btn-sm dropdown-toggle js-selection-action" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled="disabled">
+        <span class="glyphicon glyphicon glyphicon-folder-close"></span>
+        <span class="hidden-xs hidden-sm hidden-md">Organize</span>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {% if user.library_folders.exists %}
+          {% if active_folder %}
+            <li role="presentation" class="dropdown-header">Move documents to…</li>
+            {% for folder in user.library_folders.all %}
+              {% if folder != active_folder %}
+                <li><a href="javascript:void(0);" class="js-move-to" data-from-folder-id="{{ active_folder.pk }}" data-to-folder-id="{{ folder.pk }}">{{ folder.name }}</a></li>
+              {% endif %}
+            {% endfor %}
+            <li class="divider"></li>
+          {% endif %}
+          <li role="presentation" class="dropdown-header">Copy documents to…</li>
+          {% for folder in user.library_folders.all %}
+            {% if folder != active_folder %}
+              <li><a href="javascript:void(0);" class="js-copy-to" data-to-folder-id="{{ folder.pk }}">{{ folder.name }}</a></li>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <li class="dropdown-header"><em>Your library has no folder yet</em></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-option-horizontal visible-xs-inline visible-sm-inline visible-md-inline"></span>
+      <span class="hidden-xs hidden-sm hidden-md">More</span>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="#">Export all as bibtex</a></li>
+      <li class="divider"></li>
+      <li class="dropdown-header"><em>Select documents to<br>see more options</em></li>
+    </ul>
+  </div>
+
+  {% if active_folder %}
+    <div class="btn-group pull-right">
+      <a href="javascript:void(0);" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal-folder-settings">
+        <span class="glyphicon glyphicon-cog"></span>
+        <span class="hidden-xs hidden-sm hidden-md">Settings</span>
+      </a>
+    </div>
+  {% endif %}
+
+  <div class="btn-group pull-right" role="group" aria-label="Pager">
+    {% if documents.has_previous %}
+      <a href="?p={{ documents.previous_page_number }}{% if order %}&o={{ order }}{% endif %}{% if querystring %}&q={{ querystring }}{% endif %}" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+      </a>
+    {% else %}
+      <button type="button" class="btn btn-default btn-sm" disabled>
+        <span class="glyphicon glyphicon-arrow-left"></span>
+      </button>
+    {% endif %}
+    {% if documents.has_next %}
+      <a href="?p={{ documents.next_page_number }}{% if order %}&o={{ order }}{% endif %}{% if querystring %}&q={{ querystring }}{% endif %}" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-arrow-right"></span>
+      </a>
+    {% else %}
+      <button type="button" class="btn btn-default btn-sm" disabled>
+        <span class="glyphicon glyphicon-arrow-right"></span>
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="btn-group pull-right">
+    <a href="javascript:void(0);" class="btn btn-sm btn-link library-documents-indexes js-jump-page" data-container="body" data-placement="bottom">
+      <strong>{{ documents.start_index }}</strong> – <strong>{{ documents.end_index }}</strong> of <strong>{{ documents.paginator.count }}</strong>
+    </a>
+  </div>
+
+  <div class="btn-group pull-right">
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-sort-by-attributes"></span>
+      <span class="hidden-xs hidden-sm hidden-md">Sort</span>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li{% if order == 'title' %} class="active"{% endif %}><a href="?o=title{% if querystring %}&q={{ querystring }}{% endif %}">Title (a - z)</a></li>
+      <li{% if order == '-title' %} class="active"{% endif %}><a href="?o=-title{% if querystring %}&q={{ querystring }}{% endif %}">Title (z - a)</a></li>
+      <li{% if order == 'author' %} class="active"{% endif %}><a href="?o=author{% if querystring %}&q={{ querystring }}{% endif %}">Author (a - z)</a></li>
+      <li{% if order == '-author' %} class="active"{% endif %}><a href="?o=-author{% if querystring %}&q={{ querystring }}{% endif %}">Author (z - a)</a></li>
+      <li{% if order == 'year' %} class="active"{% endif %}><a href="?o=year{% if querystring %}&q={{ querystring }}{% endif %}">Publication year (0 - 9)</a></li>
+      <li{% if order == '-year' %} class="active"{% endif %}><a href="?o=-year{% if querystring %}&q={{ querystring }}{% endif %}">Publication year (9 - 0)</a></li>
+    </ul>
+  </div>
+
+  <div class="btn-group pull-right">
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-plus"></span>
+      <span class="hidden-xs hidden-sm hidden-md">Add</span>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="javascript:void(0);" class="js-import-bibtex">BibTeX <small>(.bib, .bibtex)</small></a></li>
+      <li><a href="#">PDF <small>(.pdf)</small></a></li>
+      <li class="divider"></li>
+      <li><a href="javascript:void(0);" class="js-new-document">Add document</a></li>
+    </ul>
+  </div>
+
+</div>
+
+<form id="form-import-bibtex" method="post" action="{% url 'library:import_bibtex' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="add-to-folder-id" value="{{ active_folder.pk }}">
+  <input type="hidden" name="redirect" value="{{ request.path }}">
+  <input id="input-bibtex" type="file" name="bibtex" style="display: none;">
+</form>

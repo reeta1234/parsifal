@@ -1,0 +1,25 @@
+<tr data-keyword-id="{{ keyword.pk }}" data-keyword-description="{{ keyword.description }}">
+  <td style="vertical-align: middle;">
+    {{ keyword.description }}
+  </td>
+  <td style="vertical-align: middle;">
+    <ul class="list-unstyled" style="margin-bottom: 0;">
+      {% for synonym in keyword.synonyms.all %}
+        <li>{{ synonym.description }}</li>
+      {% endfor %}
+    </ul>
+  </td>
+  <td style="vertical-align: middle;">
+    {{ keyword.get_related_to_display }}
+  </td>
+  <td style="width: 200px; text-align: right; vertical-align: middle;">
+    <button type="button" class="btn btn-sm btn-warning js-start-keyword-edit">
+      <span class="glyphicon glyphicon-pencil"></span>
+      edit
+    </button>
+    <button type="button" class="btn btn-sm btn-danger js-start-keyword-deletion">
+      <span class="glyphicon glyphicon-trash"></span>
+      remove
+    </button>
+  </td>
+</tr>

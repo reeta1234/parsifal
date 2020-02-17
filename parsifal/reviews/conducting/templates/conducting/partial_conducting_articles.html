@@ -1,0 +1,87 @@
+<div class="articles clearfix">
+  <div class="source-buttons">
+    {% if not source.id %}
+      <div style="margin-bottom: 20px">
+        <button type="button" class="btn btn-sm btn-default btn-find-duplicates">
+          <span class="glyphicon glyphicon-duplicate"></span>
+          Find Duplicates
+        </button>
+        <form method="post" action="{% url 'reviews:conducting:export_results' %}" style="display: inline-block;">
+          {% csrf_token %}
+          <input type="hidden" name="review-id" value="{{ review.id }}">
+          <button type="submit" class="btn btn-sm btn-default">
+            <span class="glyphicon glyphicon-download-alt"></span>
+            Export Articles
+          </button>
+        </form>
+      </div>
+    {% endif %}
+    <div class="studies-action" style="margin: 10px 0;">
+      <strong>Action:</strong>
+      <select class="select-action form-control" style="width: 200px; display: inline-block;">
+        <option value="">Select...</option>
+        <option value="remove">Remove selected</option>
+        <option value="accept">Mark as accepted</option>
+        <option value="reject">Mark as rejected</option>
+        <option value="duplicated">Mark as duplicated</option>
+      </select>
+      <button type="button" class="btn btn-default go-button">Go</button>
+      <span class="text-muted"><span class="articles-selected">0</span> of <span class="articles-total">{{ articles.count }}</span> selected</span>
+    </div>
+    <p>
+      <strong>Show:</strong>
+      <label class="radio-inline">
+        <input type="radio" name="filter" value="ALL" checked> All
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="filter" value="A"> Accepted
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="filter" value="R"> Rejected
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="filter" value="U"> Unclassified
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="filter" value="D"> Duplicated
+      </label>
+    </p>
+  </div>
+  <div class="source-articles">
+    <table class="table table-hover table-bordered" csrf-token="{{ csrf_token }}" source-id="{{ source.id }}" style="font-size: 13px">
+      <thead>
+        <tr>
+          <th style="width: 35px; text-align: center;"><input type="checkbox" id="ck-all-articles"></th>
+          {% comment %}<th style="width: 35px; text-align: center;"><span class="glyphicon glyphicon-file"></span></th>{% endcomment %}
+          <th>Bibtex Key</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Journal</th>
+          <th style="min-width: 80px;">Year</th>
+          <th style="min-width: 100px;">Added by</th>
+          <th style="min-width: 100px;">Added at</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for article in articles %}
+          <tr oid="{{ article.id }}" article-status="{{ article.status }}">
+            <td style="text-align: center;"><input type="checkbox" value="{{ article.id }}"></td>
+            <td>{{ article.bibtex_key }}</td>
+            <td>{{ article.title }}</td>
+            <td>{{ article.author }}</td>
+            <td>{{ article.journal }}</td>
+            <td>{{ article.year }}</td>
+            <td>{{ article.created_by.profile.get_screen_name }}</td>
+            <td>{{ article.created_at|date:"d M Y H:i:s" }}</td>
+            <td>{{ article.get_status_html|safe }}</td>
+          </tr>
+        {% empty %}
+          <tr class="no-data">
+            <td colspan="9">No articles.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

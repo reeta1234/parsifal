@@ -1,0 +1,27 @@
+{% if review.quality_assessment_cutoff_score > 0.0 %}
+  <p><span class="higher-than-cutoff-label">Green</span> means higher than cutoff score. <span class="lower-than-cutoff-label">Red</span> means lower or equal to the cutoff score.</p>
+{% endif %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th style="white-space: nowrap;">Quality Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for article in review.get_accepted_articles %}
+      {% if review.quality_assessment_cutoff_score > 0.0 %}
+        {% if article.get_score > review.quality_assessment_cutoff_score %} 
+          <tr class="bg-success">
+        {% else %}
+          <tr class="bg-danger">
+        {% endif%}
+      {% else %}
+        <tr>
+      {% endif%}
+        <td>{{ article.title }}</td>
+        <td>{{ article.get_score }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
